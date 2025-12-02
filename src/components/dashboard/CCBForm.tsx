@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
 import { Loader2, FileText, Save } from 'lucide-react';
+import ExcelPasteDialog from './ExcelPasteDialog';
 import { z } from 'zod';
 
 const ccbSchema = z.object({
@@ -68,6 +69,20 @@ const CCBForm = ({ onSuccess }: CCBFormProps) => {
     } else {
       setFormData(prev => ({ ...prev, [field]: value }));
     }
+  };
+
+  const handleExcelData = (data: Record<string, string>) => {
+    setFormData(prev => ({
+      ...prev,
+      pa: data.pa || prev.pa,
+      produto: data.produto || prev.produto,
+      limite: data.limite ? formatCurrency(data.limite.replace(/\D/g, '')) : prev.limite,
+      conta_corrente: data.conta_corrente || prev.conta_corrente,
+      nome: data.nome || prev.nome,
+      cpf_cnpj: data.cpf_cnpj ? formatCpfCnpj(data.cpf_cnpj) : prev.cpf_cnpj,
+      numero_ccb: data.numero_ccb || prev.numero_ccb,
+      pendencia: data.pendencia?.toLowerCase() === 'sim' || data.pendencia === '1' || data.pendencia?.toLowerCase() === 'true' || prev.pendencia,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -148,14 +163,17 @@ const CCBForm = ({ onSuccess }: CCBFormProps) => {
   return (
     <Card className="animate-slide-up">
       <CardHeader>
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <FileText className="h-5 w-5 text-primary" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <FileText className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <CardTitle>Nova Operação CCB</CardTitle>
+              <CardDescription>Preencha os dados da operação de crédito</CardDescription>
+            </div>
           </div>
-          <div>
-            <CardTitle>Nova Operação CCB</CardTitle>
-            <CardDescription>Preencha os dados da operação de crédito</CardDescription>
-          </div>
+          <ExcelPasteDialog onDataParsed={handleExcelData} />
         </div>
       </CardHeader>
       <CardContent>
