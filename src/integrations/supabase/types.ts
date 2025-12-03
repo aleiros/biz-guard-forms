@@ -26,6 +26,8 @@ export type Database = {
           numero_ccb: string
           pa: string
           pendencia: boolean
+          pendencia_regularizacao: boolean
+          pendente_malote: boolean
           produto: string
           status: Database["public"]["Enums"]["operation_status"]
           updated_at: string
@@ -42,6 +44,8 @@ export type Database = {
           numero_ccb: string
           pa: string
           pendencia?: boolean
+          pendencia_regularizacao?: boolean
+          pendente_malote?: boolean
           produto: string
           status?: Database["public"]["Enums"]["operation_status"]
           updated_at?: string
@@ -58,6 +62,8 @@ export type Database = {
           numero_ccb?: string
           pa?: string
           pendencia?: boolean
+          pendencia_regularizacao?: boolean
+          pendente_malote?: boolean
           produto?: string
           status?: Database["public"]["Enums"]["operation_status"]
           updated_at?: string
@@ -140,6 +146,11 @@ export type Database = {
         | "aprovado"
         | "rejeitado"
         | "cancelado"
+        | "aberto"
+        | "liquidado"
+        | "prejuizo_quitado"
+        | "transferencia_prejuizo"
+        | "repactuado"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -281,6 +292,11 @@ export const Constants = {
         "aprovado",
         "rejeitado",
         "cancelado",
+        "aberto",
+        "liquidado",
+        "prejuizo_quitado",
+        "transferencia_prejuizo",
+        "repactuado",
       ],
     },
   },

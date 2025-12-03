@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import StatsCards from '@/components/dashboard/StatsCards';
+import DashboardTabs from '@/components/dashboard/DashboardTabs';
 import CCBForm from '@/components/dashboard/CCBForm';
 import { Button } from '@/components/ui/button';
 import { Loader2, Plus, X, Shield, Building2 } from 'lucide-react';
@@ -59,6 +60,7 @@ const Dashboard = () => {
       <DashboardHeader />
       
       <main className="container mx-auto px-4 py-8">
+        {/* Header Section */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             {isAdmin ? (
@@ -78,14 +80,16 @@ const Dashboard = () => {
           </h2>
           <p className="text-muted-foreground">
             {isAdmin 
-              ? 'Visão geral de todas as operações CCB' 
-              : 'Gerencie suas operações de crédito CCB'}
+              ? 'Visão geral de todas as operações CCB de todas as agências' 
+              : `Gerencie as operações de crédito CCB da Agência PA ${userPa}`}
           </p>
         </div>
 
+        {/* Stats Cards */}
         <StatsCards key={refreshKey} isAdmin={isAdmin} userPa={userPa} />
 
-        <div className="mt-8">
+        {/* New Operation Button */}
+        <div className="mt-8 mb-6">
           {!showForm ? (
             <Button 
               variant="gradient" 
@@ -113,6 +117,13 @@ const Dashboard = () => {
             </div>
           )}
         </div>
+
+        {/* Operations Tabs */}
+        {!showForm && (
+          <div className="mt-8">
+            <DashboardTabs isAdmin={isAdmin} userPa={userPa} />
+          </div>
+        )}
       </main>
     </div>
   );

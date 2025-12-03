@@ -21,8 +21,10 @@ const ccbSchema = z.object({
   cpf_cnpj: z.string().min(11, 'CPF/CNPJ inválido'),
   numero_ccb: z.string().min(1, 'Número CCB é obrigatório'),
   modalidade: z.enum(['capital_giro', 'financiamento', 'emprestimo', 'credito_pessoal', 'consignado']),
-  status: z.enum(['pendente', 'em_analise', 'aprovado', 'rejeitado', 'cancelado']),
+  status: z.enum(['pendente', 'em_analise', 'aprovado', 'rejeitado', 'cancelado', 'aberto', 'liquidado', 'prejuizo_quitado', 'transferencia_prejuizo', 'repactuado']),
   pendencia: z.boolean(),
+  pendente_malote: z.boolean(),
+  pendencia_regularizacao: z.boolean(),
 });
 
 type CCBFormData = z.infer<typeof ccbSchema>;
@@ -44,8 +46,10 @@ const CCBForm = ({ onSuccess, defaultPa }: CCBFormProps) => {
     cpf_cnpj: '',
     numero_ccb: '',
     modalidade: 'capital_giro',
-    status: 'pendente',
+    status: 'aberto',
     pendencia: false,
+    pendente_malote: false,
+    pendencia_regularizacao: false,
   });
 
   const formatCurrency = (value: string) => {
@@ -118,6 +122,8 @@ const CCBForm = ({ onSuccess, defaultPa }: CCBFormProps) => {
         modalidade: validated.modalidade,
         status: validated.status,
         pendencia: validated.pendencia,
+        pendente_malote: validated.pendente_malote,
+        pendencia_regularizacao: validated.pendencia_regularizacao,
       });
 
       if (error) throw error;
@@ -129,7 +135,7 @@ const CCBForm = ({ onSuccess, defaultPa }: CCBFormProps) => {
 
       // Reset form
       setFormData({
-        pa: '',
+        pa: defaultPa || '',
         produto: '',
         limite: '',
         conta_corrente: '',
@@ -137,8 +143,10 @@ const CCBForm = ({ onSuccess, defaultPa }: CCBFormProps) => {
         cpf_cnpj: '',
         numero_ccb: '',
         modalidade: 'capital_giro',
-        status: 'pendente',
+        status: 'aberto',
         pendencia: false,
+        pendente_malote: false,
+        pendencia_regularizacao: false,
       });
 
       onSuccess?.();
@@ -296,30 +304,72 @@ const CCBForm = ({ onSuccess, defaultPa }: CCBFormProps) => {
                   <SelectValue placeholder="Selecione o status" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="aberto">Aberto</SelectItem>
                   <SelectItem value="pendente">Pendente</SelectItem>
                   <SelectItem value="em_analise">Em Análise</SelectItem>
                   <SelectItem value="aprovado">Aprovado</SelectItem>
                   <SelectItem value="rejeitado">Rejeitado</SelectItem>
                   <SelectItem value="cancelado">Cancelado</SelectItem>
+                  <SelectItem value="liquidado">Liquidado</SelectItem>
+                  <SelectItem value="prejuizo_quitado">Prejuízo Quitado</SelectItem>
+                  <SelectItem value="transferencia_prejuizo">Transf. Prejuízo</SelectItem>
+                  <SelectItem value="repactuado">Repactuado</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          {/* Pendência */}
-          <div className="flex items-center space-x-3 p-4 bg-muted rounded-lg">
-            <Checkbox
-              id="pendencia"
-              checked={formData.pendencia}
-              onCheckedChange={(checked) => handleChange('pendencia', checked as boolean)}
-            />
-            <div className="space-y-1">
-              <Label htmlFor="pendencia" className="cursor-pointer font-medium">
-                Pendência
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Marque se há alguma pendência na operação
-              </p>
+          {/* Checkboxes */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Pendência */}
+            <div className="flex items-center space-x-3 p-4 bg-muted rounded-lg">
+              <Checkbox
+                id="pendencia"
+                checked={formData.pendencia}
+                onCheckedChange={(checked) => handleChange('pendencia', checked as boolean)}
+              />
+              <div className="space-y-1">
+                <Label htmlFor="pendencia" className="cursor-pointer font-medium">
+                  Pendência
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Há pendência geral
+                </p>
+              </div>
+            </div>
+
+            {/* Pendente Malote */}
+            <div className="flex items-center space-x-3 p-4 bg-warning/5 rounded-lg border border-warning/20">
+              <Checkbox
+                id="pendente_malote"
+                checked={formData.pendente_malote}
+                onCheckedChange={(checked) => handleChange('pendente_malote', checked as boolean)}
+              />
+              <div className="space-y-1">
+                <Label htmlFor="pendente_malote" className="cursor-pointer font-medium">
+                  Pendente Malote
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Documento pendente malote
+                </p>
+              </div>
+            </div>
+
+            {/* Pendência Regularização */}
+            <div className="flex items-center space-x-3 p-4 bg-destructive/5 rounded-lg border border-destructive/20">
+              <Checkbox
+                id="pendencia_regularizacao"
+                checked={formData.pendencia_regularizacao}
+                onCheckedChange={(checked) => handleChange('pendencia_regularizacao', checked as boolean)}
+              />
+              <div className="space-y-1">
+                <Label htmlFor="pendencia_regularizacao" className="cursor-pointer font-medium">
+                  Pend. Regularização
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Pendência de regularização
+                </p>
+              </div>
             </div>
           </div>
 
