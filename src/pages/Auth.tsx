@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
-import { Shield, Lock, Mail, User, ArrowRight, Loader2 } from 'lucide-react';
+import { Shield, Lock, Mail, User, ArrowRight, Loader2, Building2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -20,10 +21,13 @@ const registerSchema = z.object({
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
   confirmPassword: z.string(),
+  pa: z.string().min(1, 'Selecione uma agência'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Senhas não conferem',
   path: ['confirmPassword'],
 });
+
+const PA_OPTIONS = ['00', '02', '03', '05', '06', '07', '09', '10', '11', '12', '15', '16', '17', '18', '20', '21', '22', '23', '24', '25', '26', '97'];
 
 const Auth = () => {
   const { user, signUp, signIn, loading: authLoading } = useAuth();
@@ -39,6 +43,7 @@ const Auth = () => {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
+  const [registerPa, setRegisterPa] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -101,9 +106,10 @@ const Auth = () => {
         email: registerEmail,
         password: registerPassword,
         confirmPassword: registerConfirmPassword,
+        pa: registerPa,
       });
 
-      const { error } = await signUp(validated.email, validated.password, validated.fullName);
+      const { error } = await signUp(validated.email, validated.password, validated.fullName, validated.pa);
       
       if (error) {
         if (error.message.includes('User already registered')) {
@@ -306,6 +312,22 @@ const Auth = () => {
                           required
                         />
                       </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="register-pa">Agência (PA)</Label>
+                      <Select value={registerPa} onValueChange={setRegisterPa}>
+                        <SelectTrigger className="w-full">
+                          <Building2 className="h-4 w-4 text-muted-foreground mr-2" />
+                          <SelectValue placeholder="Selecione sua agência" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PA_OPTIONS.map((pa) => (
+                            <SelectItem key={pa} value={pa}>
+                              PA {pa}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="register-confirm-password">Confirmar Senha</Label>

@@ -29,13 +29,14 @@ type CCBFormData = z.infer<typeof ccbSchema>;
 
 interface CCBFormProps {
   onSuccess?: () => void;
+  defaultPa?: string | null;
 }
 
-const CCBForm = ({ onSuccess }: CCBFormProps) => {
+const CCBForm = ({ onSuccess, defaultPa }: CCBFormProps) => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<CCBFormData>({
-    pa: '',
+    pa: defaultPa || '',
     produto: '',
     limite: '',
     conta_corrente: '',

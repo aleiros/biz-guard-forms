@@ -1,17 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import StatsCards from '@/components/dashboard/StatsCards';
 import CCBForm from '@/components/dashboard/CCBForm';
 import { Button } from '@/components/ui/button';
-import { Loader2, Plus, X } from 'lucide-react';
+import { Loader2, Plus, X, Shield, Building2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
+  const { role, isAdmin, loading: roleLoading } = useUserRole();
   const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [userPa, setUserPa] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -19,12 +23,26 @@ const Dashboard = () => {
     }
   }, [user, loading, navigate]);
 
+  useEffect(() => {
+    if (user) {
+      const fetchProfile = async () => {
+        const { data } = await supabase
+          .from('profiles')
+          .select('pa')
+          .eq('user_id', user.id)
+          .single();
+        setUserPa(data?.pa || null);
+      };
+      fetchProfile();
+    }
+  }, [user]);
+
   const handleFormSuccess = () => {
     setShowForm(false);
     setRefreshKey(prev => prev + 1);
   };
 
-  if (loading) {
+  if (loading || roleLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -42,15 +60,30 @@ const Dashboard = () => {
       
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            {isAdmin ? (
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary">
+                <Shield className="h-4 w-4" />
+                <span className="text-sm font-medium">Administrador</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-secondary text-secondary-foreground">
+                <Building2 className="h-4 w-4" />
+                <span className="text-sm font-medium">Agência PA {userPa || '—'}</span>
+              </div>
+            )}
+          </div>
           <h2 className="text-2xl font-bold text-foreground mb-2">
             Olá, {user.user_metadata?.full_name?.split(' ')[0] || 'Usuário'}!
           </h2>
           <p className="text-muted-foreground">
-            Gerencie suas operações de crédito CCB
+            {isAdmin 
+              ? 'Visão geral de todas as operações CCB' 
+              : 'Gerencie suas operações de crédito CCB'}
           </p>
         </div>
 
-        <StatsCards key={refreshKey} />
+        <StatsCards key={refreshKey} isAdmin={isAdmin} userPa={userPa} />
 
         <div className="mt-8">
           {!showForm ? (
@@ -76,7 +109,7 @@ const Dashboard = () => {
                   Cancelar
                 </Button>
               </div>
-              <CCBForm onSuccess={handleFormSuccess} />
+              <CCBForm onSuccess={handleFormSuccess} defaultPa={userPa} />
             </div>
           )}
         </div>
