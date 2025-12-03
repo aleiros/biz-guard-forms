@@ -11,7 +11,12 @@ interface Stats {
   pendencias: number;
 }
 
-const StatsCards = () => {
+interface StatsCardsProps {
+  isAdmin?: boolean;
+  userPa?: string | null;
+}
+
+const StatsCards = ({ isAdmin, userPa }: StatsCardsProps) => {
   const { user } = useAuth();
   const [stats, setStats] = useState<Stats>({
     total: 0,
@@ -24,10 +29,20 @@ const StatsCards = () => {
     const fetchStats = async () => {
       if (!user) return;
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('ccb_operations')
-        .select('status, pendencia')
-        .eq('user_id', user.id);
+        .select('status, pendencia');
+      
+      // If not admin, filter by user_id OR pa
+      if (!isAdmin) {
+        if (userPa) {
+          query = query.eq('pa', userPa);
+        } else {
+          query = query.eq('user_id', user.id);
+        }
+      }
+
+      const { data, error } = await query;
 
       if (error || !data) return;
 
@@ -40,7 +55,7 @@ const StatsCards = () => {
     };
 
     fetchStats();
-  }, [user]);
+  }, [user, isAdmin, userPa]);
 
   const cards = [
     {
