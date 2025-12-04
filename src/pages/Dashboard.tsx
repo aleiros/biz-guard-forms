@@ -64,14 +64,14 @@ const Dashboard = () => {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             {isAdmin ? (
-              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary">
+              <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent text-accent-foreground">
                 <Shield className="h-4 w-4" />
-                <span className="text-sm font-medium">Administrador</span>
+                <span className="text-sm font-bold">UAD - Unidade Administrativa</span>
               </div>
             ) : (
-              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-secondary text-secondary-foreground">
+              <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary text-primary-foreground">
                 <Building2 className="h-4 w-4" />
-                <span className="text-sm font-medium">Agência PA {userPa || '—'}</span>
+                <span className="text-sm font-bold">Agência PA {userPa || '—'}</span>
               </div>
             )}
           </div>
@@ -80,8 +80,8 @@ const Dashboard = () => {
           </h2>
           <p className="text-muted-foreground">
             {isAdmin 
-              ? 'Visão geral de todas as operações CCB de todas as agências' 
-              : `Gerencie as operações de crédito CCB da Agência PA ${userPa}`}
+              ? 'Controle geral de todas as operações CCB de todas as agências' 
+              : `Gerencie as operações de crédito CCB da sua agência`}
           </p>
         </div>
 

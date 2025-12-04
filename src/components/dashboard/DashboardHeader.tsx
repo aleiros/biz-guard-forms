@@ -13,7 +13,7 @@ const DashboardHeader = () => {
     <header className="bg-card border-b border-border sticky top-0 z-50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg gradient-primary flex items-center justify-center">
+          <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
             <Shield className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
