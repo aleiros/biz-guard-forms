@@ -88,35 +88,37 @@ const Dashboard = () => {
         {/* Stats Cards */}
         <StatsCards key={refreshKey} isAdmin={isAdmin} userPa={userPa} />
 
-        {/* New Operation Button */}
-        <div className="mt-8 mb-6">
-          {!showForm ? (
-            <Button 
-              variant="gradient" 
-              size="lg"
-              onClick={() => setShowForm(true)}
-              className="animate-scale-in"
-            >
-              <Plus className="h-5 w-5" />
-              Nova Operação CCB
-            </Button>
-          ) : (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-foreground">Cadastrar Nova Operação</h3>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => setShowForm(false)}
-                >
-                  <X className="h-4 w-4" />
-                  Cancelar
-                </Button>
+        {/* New Operation Button - Only for Admin */}
+        {isAdmin && (
+          <div className="mt-8 mb-6">
+            {!showForm ? (
+              <Button 
+                variant="gradient" 
+                size="lg"
+                onClick={() => setShowForm(true)}
+                className="animate-scale-in"
+              >
+                <Plus className="h-5 w-5" />
+                Nova Operação CCB
+              </Button>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-foreground">Cadastrar Nova Operação</h3>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => setShowForm(false)}
+                  >
+                    <X className="h-4 w-4" />
+                    Cancelar
+                  </Button>
+                </div>
+                <CCBForm onSuccess={handleFormSuccess} defaultPa={userPa} />
               </div>
-              <CCBForm onSuccess={handleFormSuccess} defaultPa={userPa} />
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* Operations Tabs */}
         {!showForm && (
