@@ -161,7 +161,7 @@ const Auth = () => {
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-6">
               <Shield className="h-12 w-12" />
-              <span className="text-3xl font-bold">SecureBank</span>
+              <span className="text-3xl font-bold">Sicoob Credilivre</span>
             </div>
             <h1 className="text-4xl font-bold mb-4 leading-tight">
               Sistema de Gestão<br />de Operações CCB
@@ -195,7 +195,7 @@ const Auth = () => {
           <div className="lg:hidden mb-8 text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
               <Shield className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold text-foreground">SecureBank</span>
+              <span className="text-2xl font-bold text-foreground">Sicoob Credilivre</span>
             </div>
           </div>
 

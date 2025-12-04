@@ -17,7 +17,7 @@ const DashboardHeader = () => {
             <Shield className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="font-bold text-lg text-foreground">SecureBank</h1>
+            <h1 className="font-bold text-lg text-foreground">Sicoob Credilivre</h1>
             <p className="text-xs text-muted-foreground">Sistema CCB</p>
           </div>
         </div>
