@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Building2, User, FileText, Calendar } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Building2, User, FileText, Calendar, Pencil, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import EditOperationDialog from './EditOperationDialog';
+import DeleteOperationDialog from './DeleteOperationDialog';
 
-interface Operation {
+export interface Operation {
   id: string;
   pa: string;
   produto: string;
@@ -70,43 +73,53 @@ const OperationsList = ({ filter, isAdmin, userPa, title, emptyMessage }: Operat
   const { user } = useAuth();
   const [operations, setOperations] = useState<Operation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editOperation, setEditOperation] = useState<Operation | null>(null);
+  const [deleteOperation, setDeleteOperation] = useState<{ id: string; nome: string } | null>(null);
+
+  const fetchOperations = async () => {
+    if (!user) return;
+
+    let query = supabase
+      .from('ccb_operations')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    // Apply filter based on type
+    if (filter === 'pendente_malote') {
+      query = query.eq('pendente_malote', true);
+    } else if (filter === 'pendencia_regularizacao') {
+      query = query.eq('pendencia_regularizacao', true);
+    } else {
+      query = query.eq('status', filter);
+    }
+
+    // If not admin, filter by PA
+    if (!isAdmin && userPa) {
+      query = query.eq('pa', userPa);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Error fetching operations:', error);
+      return;
+    }
+
+    setOperations(data || []);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    const fetchOperations = async () => {
-      if (!user) return;
-
-      let query = supabase
-        .from('ccb_operations')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      // Apply filter based on type
-      if (filter === 'pendente_malote') {
-        query = query.eq('pendente_malote', true);
-      } else if (filter === 'pendencia_regularizacao') {
-        query = query.eq('pendencia_regularizacao', true);
-      } else {
-        query = query.eq('status', filter);
-      }
-
-      // If not admin, filter by PA
-      if (!isAdmin && userPa) {
-        query = query.eq('pa', userPa);
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error('Error fetching operations:', error);
-        return;
-      }
-
-      setOperations(data || []);
-      setLoading(false);
-    };
-
     fetchOperations();
   }, [user, filter, isAdmin, userPa]);
+
+  const handleEditSuccess = () => {
+    fetchOperations();
+  };
+
+  const handleDeleteSuccess = () => {
+    fetchOperations();
+  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -201,12 +214,48 @@ const OperationsList = ({ filter, isAdmin, userPa, title, emptyMessage }: Operat
                     <Calendar className="h-3 w-3" />
                     {format(new Date(op.created_at), "dd/MM/yyyy", { locale: ptBR })}
                   </div>
+                  {isAdmin && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditOperation(op)}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        Editar
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => setDeleteOperation({ id: op.id, nome: op.nome })}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Excluir
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
+
+      <EditOperationDialog
+        operation={editOperation}
+        open={!!editOperation}
+        onOpenChange={(open) => !open && setEditOperation(null)}
+        onSuccess={handleEditSuccess}
+      />
+
+      <DeleteOperationDialog
+        operationId={deleteOperation?.id || null}
+        operationName={deleteOperation?.nome || ''}
+        open={!!deleteOperation}
+        onOpenChange={(open) => !open && setDeleteOperation(null)}
+        onSuccess={handleDeleteSuccess}
+      />
     </div>
   );
 };
