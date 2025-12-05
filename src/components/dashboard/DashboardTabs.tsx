@@ -8,7 +8,8 @@ interface DashboardTabsProps {
 }
 
 const DashboardTabs = ({ isAdmin, userPa }: DashboardTabsProps) => {
-  const tabs = [
+  // Tabs para admin - todas as opções
+  const adminTabs = [
     {
       value: 'aberto',
       label: 'Abertos',
@@ -67,8 +68,31 @@ const DashboardTabs = ({ isAdmin, userPa }: DashboardTabsProps) => {
     },
   ];
 
+  // Tabs para agência - apenas visualização de pendências
+  const agencyTabs = [
+    {
+      value: 'pendente_malote',
+      label: 'Pendente Malote',
+      icon: Mail,
+      filter: 'pendente_malote' as const,
+      title: 'Documentos Pendentes - Malote',
+      emptyMessage: 'Nenhum documento pendente de malote na sua agência',
+    },
+    {
+      value: 'pendencia_regularizacao',
+      label: 'Pend. Regularização',
+      icon: FileWarning,
+      filter: 'pendencia_regularizacao' as const,
+      title: 'Pendência de Regularização',
+      emptyMessage: 'Nenhuma pendência de regularização na sua agência',
+    },
+  ];
+
+  const tabs = isAdmin ? adminTabs : agencyTabs;
+  const defaultTab = isAdmin ? 'aberto' : 'pendente_malote';
+
   return (
-    <Tabs defaultValue="aberto" className="w-full">
+    <Tabs defaultValue={defaultTab} className="w-full">
       <TabsList className="flex flex-wrap h-auto gap-1 bg-muted/50 p-1">
         {tabs.map((tab) => (
           <TabsTrigger
