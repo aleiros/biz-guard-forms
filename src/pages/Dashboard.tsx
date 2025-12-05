@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import StatsCards from '@/components/dashboard/StatsCards';
+import StatsCards, { StatsFilter } from '@/components/dashboard/StatsCards';
 import DashboardTabs from '@/components/dashboard/DashboardTabs';
+import OperationsList from '@/components/dashboard/OperationsList';
 import CCBForm from '@/components/dashboard/CCBForm';
 import { Button } from '@/components/ui/button';
 import { Loader2, Plus, X, Shield, Building2 } from 'lucide-react';
@@ -17,6 +18,7 @@ const Dashboard = () => {
   const [showForm, setShowForm] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [userPa, setUserPa] = useState<string | null>(null);
+  const [agencyFilter, setAgencyFilter] = useState<StatsFilter>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -43,6 +45,21 @@ const Dashboard = () => {
     setRefreshKey(prev => prev + 1);
   };
 
+  const getAgencyFilterConfig = (filter: StatsFilter): { filter: 'all' | 'aprovado' | 'pendente' | 'pendencia'; title: string; emptyMessage: string } | null => {
+    switch (filter) {
+      case 'total':
+        return { filter: 'all', title: 'Todas as Operações', emptyMessage: 'Nenhuma operação encontrada' };
+      case 'aprovados':
+        return { filter: 'aprovado', title: 'Operações Aprovadas', emptyMessage: 'Nenhuma operação aprovada' };
+      case 'pendentes':
+        return { filter: 'pendente', title: 'Operações em Análise', emptyMessage: 'Nenhuma operação em análise' };
+      case 'pendencias':
+        return { filter: 'pendencia', title: 'Operações com Pendências', emptyMessage: 'Nenhuma operação com pendências' };
+      default:
+        return null;
+    }
+  };
+
   if (loading || roleLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -54,6 +71,8 @@ const Dashboard = () => {
   if (!user) {
     return null;
   }
+
+  const agencyFilterConfig = getAgencyFilterConfig(agencyFilter);
 
   return (
     <div className="min-h-screen bg-background">
@@ -86,7 +105,13 @@ const Dashboard = () => {
         </div>
 
         {/* Stats Cards */}
-        <StatsCards key={refreshKey} isAdmin={isAdmin} userPa={userPa} />
+        <StatsCards 
+          key={refreshKey} 
+          isAdmin={isAdmin} 
+          userPa={userPa}
+          onFilterChange={!isAdmin ? setAgencyFilter : undefined}
+          activeFilter={agencyFilter}
+        />
 
         {/* New Operation Button - Only for Admin */}
         {isAdmin && (
@@ -120,10 +145,23 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Operations Tabs */}
-        {!showForm && (
+        {/* Admin: Operations Tabs */}
+        {isAdmin && !showForm && (
           <div className="mt-8">
             <DashboardTabs isAdmin={isAdmin} userPa={userPa} />
+          </div>
+        )}
+
+        {/* Agency: Filtered Operations List */}
+        {!isAdmin && agencyFilterConfig && (
+          <div className="mt-8">
+            <OperationsList 
+              filter={agencyFilterConfig.filter}
+              isAdmin={false}
+              userPa={userPa}
+              title={agencyFilterConfig.title}
+              emptyMessage={agencyFilterConfig.emptyMessage}
+            />
           </div>
         )}
       </main>
