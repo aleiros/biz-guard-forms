@@ -28,7 +28,7 @@ export interface Operation {
 }
 
 interface OperationsListProps {
-  filter: 'aberto' | 'liquidado' | 'prejuizo_quitado' | 'transferencia_prejuizo' | 'repactuado' | 'pendente_malote' | 'pendencia_regularizacao';
+  filter: 'aberto' | 'liquidado' | 'prejuizo_quitado' | 'transferencia_prejuizo' | 'repactuado' | 'pendente_malote' | 'pendencia_regularizacao' | 'all' | 'aprovado' | 'pendente' | 'pendencia';
   isAdmin?: boolean;
   userPa?: string | null;
   title: string;
@@ -85,10 +85,16 @@ const OperationsList = ({ filter, isAdmin, userPa, title, emptyMessage }: Operat
       .order('created_at', { ascending: false });
 
     // Apply filter based on type
-    if (filter === 'pendente_malote') {
+    if (filter === 'all') {
+      // No additional filter - show all
+    } else if (filter === 'pendente_malote') {
       query = query.eq('pendente_malote', true);
     } else if (filter === 'pendencia_regularizacao') {
       query = query.eq('pendencia_regularizacao', true);
+    } else if (filter === 'pendencia') {
+      query = query.eq('pendencia', true);
+    } else if (filter === 'pendente') {
+      query = query.or('status.eq.pendente,status.eq.em_analise');
     } else {
       query = query.eq('status', filter);
     }

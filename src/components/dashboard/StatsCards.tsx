@@ -11,12 +11,16 @@ interface Stats {
   pendencias: number;
 }
 
+export type StatsFilter = 'total' | 'aprovados' | 'pendentes' | 'pendencias' | null;
+
 interface StatsCardsProps {
   isAdmin?: boolean;
   userPa?: string | null;
+  onFilterChange?: (filter: StatsFilter) => void;
+  activeFilter?: StatsFilter;
 }
 
-const StatsCards = ({ isAdmin, userPa }: StatsCardsProps) => {
+const StatsCards = ({ isAdmin, userPa, onFilterChange, activeFilter }: StatsCardsProps) => {
   const { user } = useAuth();
   const [stats, setStats] = useState<Stats>({
     total: 0,
@@ -64,6 +68,7 @@ const StatsCards = ({ isAdmin, userPa }: StatsCardsProps) => {
       icon: FileText,
       color: 'text-primary',
       bgColor: 'bg-primary/10',
+      filterKey: 'total' as StatsFilter,
     },
     {
       title: 'Aprovadas',
@@ -71,6 +76,7 @@ const StatsCards = ({ isAdmin, userPa }: StatsCardsProps) => {
       icon: CheckCircle,
       color: 'text-success',
       bgColor: 'bg-success/10',
+      filterKey: 'aprovados' as StatsFilter,
     },
     {
       title: 'Em Análise',
@@ -78,6 +84,7 @@ const StatsCards = ({ isAdmin, userPa }: StatsCardsProps) => {
       icon: Clock,
       color: 'text-warning',
       bgColor: 'bg-warning/10',
+      filterKey: 'pendentes' as StatsFilter,
     },
     {
       title: 'Com Pendências',
@@ -85,13 +92,21 @@ const StatsCards = ({ isAdmin, userPa }: StatsCardsProps) => {
       icon: AlertTriangle,
       color: 'text-destructive',
       bgColor: 'bg-destructive/10',
+      filterKey: 'pendencias' as StatsFilter,
     },
   ];
+
+  const isClickable = !isAdmin && onFilterChange;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {cards.map((card, index) => (
-        <Card key={card.title} className="animate-slide-up" style={{ animationDelay: `${index * 100}ms` }}>
+        <Card 
+          key={card.title} 
+          className={`animate-slide-up ${isClickable ? 'cursor-pointer hover:shadow-lg transition-shadow' : ''} ${activeFilter === card.filterKey ? 'ring-2 ring-primary' : ''}`}
+          style={{ animationDelay: `${index * 100}ms` }}
+          onClick={() => isClickable && onFilterChange(activeFilter === card.filterKey ? null : card.filterKey)}
+        >
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
